@@ -1,0 +1,49 @@
+{
+  "manifest_version": 2,
+  "id": "com.goenzero.x_browse",
+  "version": "0.1.0",
+  "name": "X / 推特",
+  "description": "让 AI 用她自己的 X（推特）账号刷帖子：走 X 官方接口，刷关注的人的时间线、搜帖子、看某人的帖子和帖子下面的回复（带图），点赞、收藏、关注，把喜欢的图收藏成表情包。只看不发帖；每月花费有上限，出问题就暂停等主人处理。",
+  "author": {
+    "name": "GoenZero",
+    "url": "https://github.com/GoenZero"
+  },
+  "license": "GPL-3.0",
+  "urls": {
+    "repository": "https://github.com/GoenZero/MaiBot-X-Browse",
+    "homepage": "https://github.com/GoenZero/MaiBot-X-Browse",
+    "issues": "https://github.com/GoenZero/MaiBot-X-Browse/issues"
+  },
+  "host_application": {
+    "min_version": "1.3.5",
+    "max_version": "1.99.99"
+  },
+  "sdk": {
+    "min_version": "2.10.0",
+    "max_version": "2.99.99"
+  },
+  "dependencies": [
+    {
+      "type": "python_package",
+      "name": "aiohttp",
+      "version_spec": ">=3.9"
+    }
+  ],
+  "plugin_type": "extension",
+  "display": {
+    "icon": {
+      "type": "lucide",
+      "value": "at-sign"
+    }
+  },
+  "capabilities": [
+    "emoji.register",
+    "send.text"
+  ],
+  "i18n": {
+    "default_locale": "zh-CN",
+    "supported_locales": [
+      "zh-CN"
+    ]
+  }
+}
