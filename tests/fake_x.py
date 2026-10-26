@@ -87,7 +87,7 @@ class FakeX:
         self.token_forms.append(form)
         if form.get("grant_type") == "authorization_code":
             if form.get("code") != "good-code" or not form.get("code_verifier") or form.get("client_id") != "cid":
-                return web.json_response({"error": "invalid_request"}, status=400)
+                return web.json_response({"error": "invalid_request", "error_description": "Value passed for the authorization code was invalid."}, status=400)
         elif form.get("grant_type") == "refresh_token":
             if form.get("refresh_token") != self.refresh:
                 return web.json_response({"error": "invalid_request", "error_description": "Value passed for the token was invalid."}, status=400)

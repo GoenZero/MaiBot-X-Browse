@@ -128,6 +128,27 @@ def test_login_browse_and_budget(tmp_path, monkeypatch):
     with_x(monkeypatch, test)
 
 
+def test_expired_code_asks_to_login_again(tmp_path, monkeypatch):
+    host = FakeHost()
+    plugin = make_plugin(tmp_path, host)
+
+    async def test(world):
+        await plugin.on_load()
+        await plugin.handle_login(stream_id="s1")
+        assert "30 秒" in host.sent_texts()[-1]
+        state = parse_qs(urlsplit(re.search(r"https?://\S+", host.sent_texts()[-1]).group(0)).query)["state"][0]
+        await plugin.handle_auth(stream_id="s1", matched_groups={"url": f"http://127.0.0.1:56130/callback?state={state}&code=stale"})
+        assert "过期" in host.sent_texts()[-1] and "/x_login" in host.sent_texts()[-1]
+        # 授权码已经交给 X 用掉了：不能再拿同一个链接重试
+        await plugin.handle_auth(stream_id="s1", matched_groups={"url": f"http://127.0.0.1:56130/callback?state={state}&code=good-code"})
+        assert "没有等待中的授权" in host.sent_texts()[-1]
+        await login(plugin, host)
+        assert plugin._account.logged_in
+        await plugin.on_unload()
+
+    with_x(monkeypatch, test)
+
+
 def test_budget_is_reserved_before_requests(tmp_path, monkeypatch):
     host = FakeHost()
     config = copy.deepcopy(CONFIG)

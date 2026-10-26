@@ -201,9 +201,14 @@ class XClient:
         code = (query.get("code") or [""])[0]
         if not code:
             raise XError("网址里没有授权码，请把跳转后地址栏里的整个网址复制过来")
-        token = await self._token(
-            {"grant_type": "authorization_code", "code": code, "redirect_uri": self.app.redirect_uri, "code_verifier": pending.verifier}
-        )
+        try:
+            token = await self._token(
+                {"grant_type": "authorization_code", "code": code, "redirect_uri": self.app.redirect_uri, "code_verifier": pending.verifier}
+            )
+        except XError as exc:
+            if "authorization code" in str(exc):
+                raise XError("授权码过期或已经用过了（X 只给 30 秒）。重新发 /x_login，授权跳转后马上复制网址发过来", exc.detail, status=exc.status) from exc
+            raise
         async with self._refresh_lock:  # 别和正在进行的续期互相覆盖
             self.account.forget()
             self.account.save_tokens(token)

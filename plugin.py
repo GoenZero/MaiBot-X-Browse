@@ -387,7 +387,8 @@ class XBrowsePlugin(MaiBotPlugin):
                 "用登录着她 X 账号的手机打开这个链接，点「Authorize app / 授权」：\n"
                 f"{url}\n\n"
                 "授权后页面会跳到一个打不开的网址（以 127.0.0.1 开头），这是正常的。"
-                "把地址栏里那个网址整个复制，发「/x_auth 网址」给我（10 分钟内有效）。"
+                "把地址栏里那个网址整个复制，发「/x_auth 网址」给我。"
+                "注意：跳转后 X 只给 30 秒，要马上复制马上发（这个链接本身 10 分钟内有效）。"
             )
         # 授权链接和提示都不存进聊天记录：不然会被当成聊天内容写进记忆
         await self.ctx.send.text(text, stream_id, storage_message=False)
@@ -409,8 +410,8 @@ class XBrowsePlugin(MaiBotPlugin):
                 text = f"授权好了：{me['name']}（@{me['username']}）。"
                 self.ctx.logger.info("X：她的账号授权好了（@%s）", me["username"])
             except (XError, AccountPaused, QuotaExceeded) as exc:
-                if self._pending is None:
-                    self._pending = pending  # 网址贴错了可以再贴一次（过期后会提示重新 /x_login）
+                if self._pending is None and isinstance(exc, XError) and not exc.status:
+                    self._pending = pending  # 网址贴错了（还没交给 X）可以再贴一次；交给 X 后授权码就用掉了，要重新 /x_login
                 text = f"授权没完成：{exc}"
                 self.ctx.logger.warning("X：授权没完成：%s", exc)
         await self.ctx.send.text(text, stream_id, storage_message=False)
